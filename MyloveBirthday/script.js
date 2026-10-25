@@ -73,7 +73,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (openLetter && letterDialog) {
     openLetter.addEventListener("click", function () {
-      if (!letterDialog.open && typeof letterDialog.showModal === "function") {
+      if (!letterDialog.open &&
+          typeof letterDialog.showModal === "function") {
         letterDialog.showModal();
       }
     });
@@ -94,17 +95,28 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ========================================
-  // 3. MEMORY WALL
-  // Photos are stored in the memories folder.
-  // Filenames must match the GitHub files exactly.
+  // 3. MEMORY WALL - 27 PHOTOS
+  // Folder: MyloveBirthday/MyloveBirthday/memories/
   // ========================================
   const PHOTO_BASE =
-    "https://maeann31.github.io/MyloveBirthday/memories/";
+    "https://maeann31.github.io/MyloveBirthday/MyloveBirthday/memories/";
 
   const permanentMemories = [
     {
+      src: "HAHAHAHA magkatawa man ko ani uy - Copy.jpg",
+      caption: "Hahahaha, magkatawa man ko ani uy! 😂❤️"
+    },
+    {
+      src: "HAHAHAHA magkatawa man ko ani uy.jpg",
+      caption: "Our funny memories 😂💕"
+    },
+    {
       src: "Pandemic pani gakuha ata kog card or module ba.jpg",
-      caption: "A memory with you ❤️"
+      caption: "A memory from the pandemic ❤️"
+    },
+    {
+      src: "anniversary nato ni",
+      caption: "Our anniversary memory ❤️"
     },
     {
       src: "bag o nahuman ug suyop hahaha.jpg",
@@ -115,12 +127,36 @@ document.addEventListener("DOMContentLoaded", function () {
       caption: "Cute memories 💕"
     },
     {
+      src: "dakog mata.jpg",
+      caption: "Those eyes! 👀❤️"
+    },
+    {
       src: "dakos gyud ug mata.jpg",
       caption: "A moment to remember 🖤"
     },
     {
+      src: "ga putos ug gift para sa iyang binata.jpg",
+      caption: "A little gift and a lot of love 🎁"
+    },
+    {
+      src: "ganahan ko ani.jpg",
+      caption: "One of my favorite pictures ❤️"
+    },
+    {
+      src: "gapa cute ang mga buang hahah.jpg",
+      caption: "Gapa-cute ang mga buang! 😂"
+    },
+    {
+      src: "gapa cute gagagaga.jpg",
+      caption: "Cute moments together 💕"
+    },
+    {
       src: "gi ulagan.jpg",
       caption: "Our special memory ❤️"
+    },
+    {
+      src: "gubot kaayug background haha.jpg",
+      caption: "Gubot ang background, pero happy ta! 😂"
     },
     {
       src: "haysssttt.jpg",
@@ -128,23 +164,47 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     {
       src: "hayssstttmissyousomuch.jpg",
-      caption: "Missing you so much 🥹"
+      caption: "I miss you so much 🥹❤️"
     },
     {
       src: "inlove man kaayu.jpg",
-      caption: "In love with you ❤️"
+      caption: "In love man kaayo ❤️"
+    },
+    {
+      src: "kaluod naay laway.jpg",
+      caption: "Hahaha, kaluod! 😂"
     },
     {
       src: "lain kaayu christian na cgeg panilap ewwssss.jpg",
-      caption: "Our funny moments 😂"
+      caption: "Our silly moments 😂💕"
+    },
+    {
+      src: "maligo na sad unta ta sunod.jpg",
+      caption: "Hopefully, next time magkuyog na ta ❤️"
+    },
+    {
+      src: "missyou part.jpg",
+      caption: "Missing you, Part 🥹💕"
     },
     {
       src: "mura ng buros hahaha.jpg",
-      caption: "Another funny memory 😆"
+      caption: "Hahaha, mura nag buros! 😂"
+    },
+    {
+      src: "my1.jpg",
+      caption: "A special memory ❤️"
     },
     {
       src: "my2.jpg",
-      caption: "My favorite memory ❤️"
+      caption: "My favorite memory with you 💕"
+    },
+    {
+      src: "nawong sa iro.jpg",
+      caption: "Nawong sa iro! Hahaha 😂"
+    },
+    {
+      src: "nice.jpg",
+      caption: "Such a nice memory ❤️"
     },
     {
       src: "pogi ng lalove ko.jpg",
@@ -160,24 +220,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const card = document.createElement("article");
     card.className = "memory-card";
 
-    let imageSource = null;
+    let imageSource = "";
 
     if (memory) {
-      imageSource = PHOTO_BASE + encodeURIComponent(memory.src)
-        .replace(/%2F/gi, "/");
+      imageSource = PHOTO_BASE + encodeURIComponent(memory.src);
     } else if (file) {
       imageSource = URL.createObjectURL(file);
     }
 
     if (imageSource) {
       const image = document.createElement("img");
-
       image.src = imageSource;
       image.alt = memory ? memory.caption : "Our memory";
       image.loading = "lazy";
 
       image.addEventListener("error", function () {
-        console.error("Photo failed to load:", imageSource);
+        console.error("Cannot load photo:", imageSource);
         image.alt = "Photo could not be loaded";
       });
 
@@ -205,7 +263,7 @@ document.addEventListener("DOMContentLoaded", function () {
     removeButton.textContent = "Remove";
 
     removeButton.addEventListener("click", function () {
-      if (file && imageSource && imageSource.startsWith("blob:")) {
+      if (file && imageSource.startsWith("blob:")) {
         URL.revokeObjectURL(imageSource);
       }
 
@@ -218,41 +276,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (memoryGrid) {
-    // Add a Remove button to existing sample cards.
-    memoryGrid.querySelectorAll(".memory-card").forEach(function (card) {
-      if (card.querySelector(".remove-memory")) return;
+    // Remove the old placeholder cards from index.html.
+    // The 27 permanent photos below will replace them.
+    memoryGrid.innerHTML = "";
 
-      const button = document.createElement("button");
-      button.className = "remove-memory";
-      button.type = "button";
-      button.textContent = "Remove";
-
-      button.addEventListener("click", function () {
-        card.remove();
-      });
-
-      card.appendChild(button);
-    });
-
-    // Add the 12 configured photos without duplicating existing cards.
     permanentMemories.forEach(function (memory) {
-      const expectedSrc =
-        PHOTO_BASE + encodeURIComponent(memory.src).replace(/%2F/gi, "/");
-
-      const alreadyExists = Array.from(
-        memoryGrid.querySelectorAll("img")
-      ).some(function (image) {
-        return image.src === expectedSrc;
-      });
-
-      if (!alreadyExists) {
-        memoryGrid.appendChild(createMemoryCard(null, memory));
-      }
+      memoryGrid.appendChild(createMemoryCard(null, memory));
     });
   }
 
-  // Select photos from the device.
-  // These are temporary previews and are not uploaded to GitHub.
+  // Add photos from a phone or computer.
+  // Selected photos are temporary browser previews.
   if (photoInput && memoryGrid) {
     photoInput.addEventListener("change", function () {
       Array.from(photoInput.files || []).forEach(function (file) {
@@ -313,6 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const qrImage = document.createElement("img");
       qrImage.alt = "QR code for your birthday website";
+
       qrImage.src =
         "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
         encodeURIComponent(websiteUrl.href);
@@ -330,7 +365,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       qrImage.addEventListener("error", function () {
         result.textContent =
-          "QR generation failed. Check your internet connection.";
+          "QR generation failed. Please check your internet connection.";
       });
 
       downloadButton.onclick = async function () {
@@ -354,9 +389,9 @@ document.addEventListener("DOMContentLoaded", function () {
           setTimeout(function () {
             URL.revokeObjectURL(temporaryUrl);
           }, 1000);
-        } catch {
+        } catch (error) {
           window.open(qrImage.src, "_blank");
-          alert("Open the QR image, then save it to your device.");
+          alert("Open the QR image in a new tab, then save it.");
         }
       };
     });
