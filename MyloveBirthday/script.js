@@ -4,29 +4,31 @@ const cakeMessage = document.getElementById("cakeMessage");
 const blowButton = document.getElementById("blowButton");
 const relightButton = document.getElementById("relightButton");
 
-// Blow out the birthday candles
-blowButton.addEventListener("click", function () {
-  candles.classList.add("blown");
-  cakeMessage.textContent =
-    "Wish made! May all your dreams come true. ❤️";
+// Birthday candles
+if (blowButton && candles && cakeMessage) {
+  blowButton.addEventListener("click", function () {
+    candles.classList.add("blown");
+    cakeMessage.textContent =
+      "Wish made! May all your dreams come true. ❤️";
 
-  blowButton.hidden = true;
-  relightButton.hidden = false;
+    blowButton.hidden = true;
+    if (relightButton) relightButton.hidden = false;
 
-  showHearts();
-});
+    showHearts();
+  });
+}
 
-// Light the candles again
-relightButton.addEventListener("click", function () {
-  candles.classList.remove("blown");
-  cakeMessage.textContent =
-    "Your birthday wish is waiting! ✨";
+if (relightButton && candles && cakeMessage) {
+  relightButton.addEventListener("click", function () {
+    candles.classList.remove("blown");
+    cakeMessage.textContent = "Your birthday wish is waiting! ✨";
 
-  blowButton.hidden = false;
-  relightButton.hidden = true;
-});
+    relightButton.hidden = true;
+    if (blowButton) blowButton.hidden = false;
+  });
+}
 
-// Floating heart animation
+// Floating hearts
 function showHearts() {
   for (let i = 0; i < 20; i++) {
     const heart = document.createElement("span");
@@ -54,37 +56,114 @@ function showHearts() {
   }
 }
 
-// Open birthday letter
+// Birthday letter
 const letterDialog = document.getElementById("letterDialog");
+const openLetter = document.getElementById("openLetter");
+const closeLetter = document.getElementById("closeLetter");
 
-document.getElementById("openLetter").addEventListener("click", function () {
-  letterDialog.showModal();
-});
+if (openLetter && letterDialog) {
+  openLetter.addEventListener("click", function () {
+    if (typeof letterDialog.showModal === "function") {
+      letterDialog.showModal();
+    }
+  });
+}
 
-// Close birthday letter
-document.getElementById("closeLetter").addEventListener("click", function () {
-  letterDialog.close();
-});
-
-// Close letter by clicking outside the letter
-letterDialog.addEventListener("click", function (event) {
-  if (event.target === letterDialog) {
+if (closeLetter && letterDialog) {
+  closeLetter.addEventListener("click", function () {
     letterDialog.close();
-  }
-});
+  });
+}
 
-// Upload memory photos
+if (letterDialog) {
+  letterDialog.addEventListener("click", function (event) {
+    if (event.target === letterDialog) {
+      letterDialog.close();
+    }
+  });
+}
+
+// Memories section
 const photoInput = document.getElementById("photoInput");
 const memoryGrid = document.getElementById("memoryGrid");
+const addMemoryButton = document.getElementById("addMemory");
 
-function createMemoryCard(file = null) {
+// These photos are hosted in the root of your GitHub repository.
+// Filenames must match the uploaded image filenames exactly.
+const permanentMemories = [
+  {
+    src: "./Pandemic%20pani%20gakuha%20ata%20kog%20card%20or%20module%20ba.jpg",
+    caption: "A memory with you ❤️"
+  },
+  {
+    src: "./bag%20o%20nahuman%20ug%20suyop%20hahaha.jpg",
+    caption: "One of our funny moments 😂"
+  },
+  {
+    src: "./cute%20ko.jpg",
+    caption: "Cute memories 💕"
+  },
+  {
+    src: "./dakos%20gyud%20ug%20mata.jpg",
+    caption: "A moment to remember 🖤"
+  },
+  {
+    src: "./gi%20ulagan.jpg",
+    caption: "Our special memory ❤️"
+  },
+  {
+    src: "./haysssttt.jpg",
+    caption: "A memory close to my heart 💌"
+  },
+  {
+    src: "./hayssstttmissyousomuch.jpg",
+    caption: "Missing you so much 🥹"
+  },
+  {
+    src: "./inlove%20man%20kaayu.jpg",
+    caption: "In love with you ❤️"
+  },
+  {
+    src: "./lain%20kaayu%20christian%20na%20cgeg%20panilap%20ewwssss.jpg",
+    caption: "Our funny moments 😂"
+  },
+  {
+    src: "./mura%20ng%20buros%20hahaha.jpg",
+    caption: "Another funny memory 😆"
+  },
+  {
+    src: "./my2.jpg",
+    caption: "My favorite memory ❤️"
+  },
+  {
+    src: "./pogi%20ng%20lalove%20ko.jpg",
+    caption: "My pogi love 🖤"
+  }
+];
+
+function createMemoryCard(file = null, permanentMemory = null) {
   const card = document.createElement("article");
   card.className = "memory-card";
 
-  if (file) {
+  const imageSource = permanentMemory
+    ? permanentMemory.src
+    : file
+      ? URL.createObjectURL(file)
+      : null;
+
+  if (imageSource) {
     const image = document.createElement("img");
-    image.alt = "Our memory";
-    image.src = URL.createObjectURL(file);
+    image.src = imageSource;
+    image.alt = permanentMemory
+      ? permanentMemory.caption
+      : "Our memory";
+    image.loading = "lazy";
+
+    image.addEventListener("error", function () {
+      image.alt = "Photo could not be loaded";
+      image.classList.add("photo-error");
+    });
+
     card.appendChild(image);
   } else {
     const placeholder = document.createElement("div");
@@ -95,9 +174,11 @@ function createMemoryCard(file = null) {
 
   const caption = document.createElement("p");
   caption.contentEditable = "true";
-  caption.textContent = file
-    ? file.name.replace(/\.[^.]+$/, "")
-    : "A beautiful memory ❤️";
+  caption.textContent = permanentMemory
+    ? permanentMemory.caption
+    : file
+      ? file.name.replace(/\.[^.]+$/, "")
+      : "A beautiful memory ❤️";
 
   card.appendChild(caption);
 
@@ -107,124 +188,144 @@ function createMemoryCard(file = null) {
   removeButton.type = "button";
 
   removeButton.addEventListener("click", function () {
-    const image = card.querySelector("img");
-
-    if (image && image.src.startsWith("blob:")) {
-      URL.revokeObjectURL(image.src);
+    if (file && imageSource && imageSource.startsWith("blob:")) {
+      URL.revokeObjectURL(imageSource);
     }
 
     card.remove();
   });
 
   card.appendChild(removeButton);
-  memoryGrid.prepend(card);
+  return card;
 }
 
-// Choose photos from your computer or phone
-photoInput.addEventListener("change", function () {
-  Array.from(photoInput.files).forEach(function (file) {
-    if (file.type.startsWith("image/")) {
-      createMemoryCard(file);
-    }
+// Load the permanent photos on every visit
+if (memoryGrid) {
+  permanentMemories.forEach(function (memory) {
+    memoryGrid.appendChild(createMemoryCard(null, memory));
   });
 
-  photoInput.value = "";
-});
+  // Add remove buttons to any original sample cards in index.html
+  memoryGrid.querySelectorAll(".memory-card").forEach(function (card) {
+    if (card.querySelector(".remove-memory")) return;
+
+    const button = document.createElement("button");
+    button.className = "remove-memory";
+    button.textContent = "Remove";
+    button.type = "button";
+
+    button.addEventListener("click", function () {
+      card.remove();
+    });
+
+    card.appendChild(button);
+  });
+}
+
+// Select extra photos on this device.
+// These previews are temporary and are not uploaded to GitHub.
+if (photoInput && memoryGrid) {
+  photoInput.addEventListener("change", function () {
+    Array.from(photoInput.files || []).forEach(function (file) {
+      if (file.type.startsWith("image/")) {
+        memoryGrid.prepend(createMemoryCard(file));
+      }
+    });
+
+    photoInput.value = "";
+  });
+}
 
 // Add an empty memory card
-document.getElementById("addMemory").addEventListener("click", function () {
-  createMemoryCard();
-});
-
-// Add remove buttons to the three sample cards
-document.querySelectorAll(".memory-card").forEach(function (card) {
-  const button = document.createElement("button");
-  button.className = "remove-memory";
-  button.textContent = "Remove";
-  button.type = "button";
-
-  button.addEventListener("click", function () {
-    card.remove();
+if (addMemoryButton && memoryGrid) {
+  addMemoryButton.addEventListener("click", function () {
+    memoryGrid.prepend(createMemoryCard());
   });
+}
 
-  card.appendChild(button);
-});
+// QR code generator
+const makeQrButton = document.getElementById("makeQr");
 
-// Generate QR code from the published website link
-document.getElementById("makeQr").addEventListener("click", function () {
-  const urlInput = document.getElementById("siteUrl");
-  const result = document.getElementById("qrResult");
-  const downloadButton = document.getElementById("downloadQr");
-  const url = urlInput.value.trim();
+if (makeQrButton) {
+  makeQrButton.addEventListener("click", function () {
+    const urlInput = document.getElementById("siteUrl");
+    const result = document.getElementById("qrResult");
+    const downloadButton = document.getElementById("downloadQr");
 
-  downloadButton.hidden = true;
+    if (!urlInput || !result || !downloadButton) return;
 
-  if (!url) {
-    result.textContent =
-      "Please paste your published website link first.";
-    return;
-  }
+    const url = urlInput.value.trim();
+    downloadButton.hidden = true;
 
-  let websiteUrl;
-
-  try {
-    websiteUrl = new URL(url);
-  } catch {
-    result.textContent =
-      "Invalid link. Please check your website URL.";
-    return;
-  }
-
-  if (!["https:", "http:"].includes(websiteUrl.protocol)) {
-    result.textContent = "Please enter a valid public website link.";
-    return;
-  }
-
-  result.replaceChildren();
-
-  const image = document.createElement("img");
-  image.alt = "QR code for your birthday website";
-
-  image.src =
-    "https://api.qrserver.com/v1/create-qr-code/" +
-    "?size=300x300&data=" +
-    encodeURIComponent(websiteUrl.href);
-
-  image.addEventListener("load", function () {
-    downloadButton.hidden = false;
-  });
-
-  image.addEventListener("error", function () {
-    result.textContent =
-      "QR generation failed. Check your internet connection.";
-  });
-
-  const message = document.createElement("p");
-  message.textContent = "Scan me to open your birthday surprise! ❤️";
-
-  result.appendChild(image);
-  result.appendChild(message);
-
-  downloadButton.onclick = async function () {
-    try {
-      const response = await fetch(image.src);
-
-      if (!response.ok) {
-        throw new Error("Download failed");
-      }
-
-      const blob = await response.blob();
-      const temporaryUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-
-      link.href = temporaryUrl;
-      link.download = "Mylove-Birthday-QR.png";
-      link.click();
-
-      URL.revokeObjectURL(temporaryUrl);
-    } catch {
-      window.open(image.src, "_blank");
-      alert("Open the QR image, then save it to your device.");
+    if (!url) {
+      result.textContent =
+        "Please paste your published website link first.";
+      return;
     }
-  };
-});
+
+    let websiteUrl;
+
+    try {
+      websiteUrl = new URL(url);
+    } catch {
+      result.textContent =
+        "Invalid link. Please check your website URL.";
+      return;
+    }
+
+    if (!["https:", "http:"].includes(websiteUrl.protocol)) {
+      result.textContent = "Please enter a valid public website link.";
+      return;
+    }
+
+    result.replaceChildren();
+
+    const image = document.createElement("img");
+    image.alt = "QR code for your birthday website";
+    image.src =
+      "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+      encodeURIComponent(websiteUrl.href);
+
+    const message = document.createElement("p");
+    message.textContent = "Scan me to open your birthday surprise! ❤️";
+
+    result.appendChild(image);
+    result.appendChild(message);
+
+    image.addEventListener("load", function () {
+      downloadButton.hidden = false;
+    });
+
+    image.addEventListener("error", function () {
+      result.textContent =
+        "QR generation failed. Check your internet connection.";
+    });
+
+    downloadButton.onclick = async function () {
+      try {
+        const response = await fetch(image.src);
+
+        if (!response.ok) {
+          throw new Error("Download failed");
+        }
+
+        const blob = await response.blob();
+        const temporaryUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = temporaryUrl;
+        link.download = "Mylove-Birthday-QR.png";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(function () {
+          URL.revokeObjectURL(temporaryUrl);
+        }, 1000);
+      } catch {
+        window.open(image.src, "_blank");
+        alert("Open the QR image, then save it to your device.");
+      }
+    };
+  });
+}
